@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lizard Lizard Lizard Meme Generator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+    <style>
+      body {
+        font-family: "Arial", sans-serif;
+        background: linear-gradient(135deg, #0a0a0a, #1a1a1a);
+        color: #fff;
+        min-height: 100vh;
+        margin: 0;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+      }
+
+      .container {
+        background: rgba(20, 20, 20, 0.9);
+        border-radius: 25px;
+        padding: 40px;
+        max-width: 500px;
+        text-align: center;
+        box-shadow: 0 20px 60px rgba(0, 255, 0, 0.1);
+        border: 2px solid rgba(0, 255, 0, 0.2);
+        position: relative;
+      }
+
+      .phone-container {
+        background: #222;
+        border-radius: 25px;
+        padding: 30px;
+        margin: 20px 0;
+        border: 3px solid #444;
+        box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
+        position: relative;
+      }
+
+      .screen {
+        background: #000;
+        border-radius: 15px;
+        padding: 20px;
+        min-height: 200px;
+        border: 2px solid #333;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .lizard-character {
+        font-size: 60px;
+        margin-bottom: 20px;
+        animation: lizardBlink 2s infinite;
+        filter: drop-shadow(0 0 10px rgba(0, 255, 0, 0.3));
+      }
+
+      @keyframes lizardBlink {
+        0%,
+        85%,
+        100% {
+          transform: scale(1);
+        }
+        90%,
+        95% {
+          transform: scale(0.95);
+          opacity: 0.8;
+        }
+      }
+
+      .chat-area {
+        background: #111;
+        border-radius: 10px;
+        padding: 15px;
+        margin: 15px 0;
+        min-height: 100px;
+        border: 1px solid #333;
+        font-family: monospace;
+        font-size: 14px;
+        text-align: left;
+        overflow-y: auto;
+        max-height: 150px;
+      }
+
+      .lizard-emoji {
+        display: inline-block;
+        margin: 2px;
+        animation: popIn 0.3s ease-out;
+      }
+
+      @keyframes popIn {
+        0% {
+          transform: scale(0);
+          opacity: 0;
+        }
+        50% {
+          transform: scale(1.2);
+        }
+        100% {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+
+      .big-lizard-button {
+        background: linear-gradient(45deg, #2d5a2d, #4a8f4a);
+        border: none;
+        color: white;
+        padding: 25px 50px;
+        font-size: 24px;
+        border-radius: 50px;
+        cursor: pointer;
+        margin: 20px;
+        transition: all 0.2s;
+        box-shadow: 0 8px 25px rgba(0, 255, 0, 0.2);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .big-lizard-button:hover {
+        transform: scale(1.05);
+        box-shadow: 0 12px 35px rgba(0, 255, 0, 0.3);
+      }
+
+      .big-lizard-button:active {
+        transform: scale(0.95);
+        box-shadow: 0 4px 15px rgba(0, 255, 0, 0.4);
+      }
+
+      .big-lizard-button::before {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        transition: width 0.3s, height 0.3s;
+      }
+
+      .big-lizard-button:active::before {
+        width: 300px;
+        height: 300px;
+      }
+
+      .controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        justify-content: center;
+        margin: 20px 0;
+      }
+
+      .control-btn {
+        background: #333;
+        border: 1px solid #555;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 20px;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-size: 14px;
+      }
+
+      .control-btn:hover {
+        background: #4a4a4a;
+        border-color: #777;
+      }
+
+      .control-btn.active {
+        background: #2d5a2d;
+        border-color: #4a8f4a;
+      }
+
+      .speed-control {
+        margin: 20px 0;
+      }
+
+      .speed-slider {
+        width: 200px;
+        margin: 0 15px;
+      }
+
+      .counter {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background: rgba(255, 0, 0, 0.8);
+        color: white;
+        padding: 5px 10px;
+        border-radius: 15px;
+        font-size: 12px;
+        font-weight: bold;
+      }
+
+      .pixar-credit {
+        margin-top: 20px;
+        font-size: 12px;
+        opacity: 0.7;
+        font-style: italic;
+      }
+
+      .status-text {
+        margin: 15px 0;
+        font-size: 16px;
+        color: #4a8f4a;
+        font-weight: bold;
+      }
+
+      .audio-wave {
+        position: absolute;
+        bottom: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100px;
+        height: 20px;
+        display: flex;
+        align-items: end;
+        gap: 2px;
+      }
+
+      .wave-bar {
+        width: 3px;
+        background: #4a8f4a;
+        border-radius: 2px;
+        animation: wave 0.5s infinite ease-in-out;
+      }
+
+      @keyframes wave {
+        0%,
+        100% {
+          height: 5px;
+        }
+        50% {
+          height: 20px;
+        }
+      }
+
+      .wave-bar:nth-child(2) {
+        animation-delay: 0.1s;
+      }
+      .wave-bar:nth-child(3) {
+        animation-delay: 0.2s;
+      }
+      .wave-bar:nth-child(4) {
+        animation-delay: 0.3s;
+      }
+      .wave-bar:nth-child(5) {
+        animation-delay: 0.4s;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="counter" id="counter">0</div>
+
+      <h1>🦎 LIZARD LIZARD LIZARD 🦎</h1>
+      <p style="font-size: 12px; opacity: 0.8">From Elio Post-Credits Scene</p>
+
+      <div class="phone-container">
+        <div class="screen">
+          <div class="lizard-character">🦎</div>
+          <div class="chat-area" id="chatArea">
+            <div style="color: #666">Tap the lizard button...</div>
+          </div>
+          <div class="audio-wave" id="audioWave" style="display: none">
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+          </div>
+        </div>
+      </div>
+
+      <button class="big-lizard-button" id="lizardButton">🦎 LIZARD</button>
+
+      <div class="status-text" id="statusText">Ready to spam lizard...</div>
+
+      <div class="speed-control">
+        <label>Speed: </label>
+        <input
+          type="range"
+          class="speed-slider"
+          id="speedSlider"
+          min="100"
+          max="1000"
+          value="500"
+          step="50"
+        />
+        <span id="speedValue">500ms</span>
+      </div>
+
+      <div class="controls">
+        <button class="control-btn" id="autoSpamBtn">Auto Spam</button>
+        <button class="control-btn" id="clearBtn">Clear Chat</button>
+        <button class="control-btn" id="muteBtn">Mute</button>
+      </div>
+
+      <div class="pixar-credit">
+        Original from Disney Pixar's "Elio" (2025) - Hoppers Preview
+      </div>
+    </div>
+
+    <script>
+      let synth,
+        isAudioInitialized = false;
+      let lizardCount = 0;
+      let isAutoSpamming = false;
+      let autoSpamInterval;
+      let isMuted = false;
+
+      const chatArea = document.getElementById("chatArea");
+      const counter = document.getElementById("counter");
+      const statusText = document.getElementById("statusText");
+      const audioWave = document.getElementById("audioWave");
+      const speedSlider = document.getElementById("speedSlider");
+      const speedValue = document.getElementById("speedValue");
+
+      // Initialize audio
+      async function initAudio() {
+        if (isAudioInitialized) return;
+
+        await Tone.start();
+
+        // Create a robotic voice-like synthesizer
+        synth = new Tone.Synth({
+          oscillator: {
+            type: "square",
+          },
+          envelope: {
+            attack: 0.01,
+            decay: 0.1,
+            sustain: 0.3,
+            release: 0.1,
+          },
+        });
+
+        // Add filter for robotic effect
+        const filter = new Tone.Filter({
+          frequency: 1200,
+          type: "lowpass",
+        });
+
+        synth.chain(filter, Tone.Destination);
+        isAudioInitialized = true;
+      }
+
+      function playLizardSound() {
+        if (!isMuted && synth) {
+          // Create robotic "lizard" sound pattern
+          const notes = ["C4", "G3", "C4"]; // Simple pattern for "li-zard"
+          const durations = [0.1, 0.1, 0.15];
+
+          let time = Tone.now();
+          notes.forEach((note, index) => {
+            synth.triggerAttackRelease(
+              note,
+              durations[index],
+              time + index * 0.08
+            );
+          });
+
+          // Show audio wave animation
+          audioWave.style.display = "flex";
+          setTimeout(() => {
+            audioWave.style.display = "none";
+          }, 300);
+        }
+      }
+
+      function addLizardToChat() {
+        lizardCount++;
+        counter.textContent = lizardCount;
+
+        // Clear the placeholder text on first lizard
+        if (lizardCount === 1) {
+          chatArea.innerHTML = "";
+        }
+
+        // Add lizard emoji with animation
+        const lizardSpan = document.createElement("span");
+        lizardSpan.className = "lizard-emoji";
+        lizardSpan.textContent = "🦎";
+        chatArea.appendChild(lizardSpan);
+
+        // Add space every 10 lizards for readability
+        if (lizardCount % 10 === 0) {
+          chatArea.appendChild(document.createElement("br"));
+        }
+
+        // Auto-scroll to bottom
+        chatArea.scrollTop = chatArea.scrollHeight;
+
+        // Update status
+        statusText.textContent = `Lizard count: ${lizardCount}`;
+
+        // Play sound
+        playLizardSound();
+      }
+
+      function startAutoSpam() {
+        if (isAutoSpamming) return;
+
+        isAutoSpamming = true;
+        document.getElementById("autoSpamBtn").classList.add("active");
+        document.getElementById("autoSpamBtn").textContent = "Stop Spam";
+        statusText.textContent = "AUTO SPAMMING LIZARDS!";
+
+        const speed = parseInt(speedSlider.value);
+        autoSpamInterval = setInterval(addLizardToChat, speed);
+      }
+
+      function stopAutoSpam() {
+        if (!isAutoSpamming) return;
+
+        isAutoSpamming = false;
+        clearInterval(autoSpamInterval);
+        document.getElementById("autoSpamBtn").classList.remove("active");
+        document.getElementById("autoSpamBtn").textContent = "Auto Spam";
+        statusText.textContent = "Auto spam stopped";
+      }
+
+      function clearChat() {
+        chatArea.innerHTML = '<div style="color: #666;">Chat cleared...</div>';
+        lizardCount = 0;
+        counter.textContent = "0";
+        statusText.textContent = "Ready to spam lizard...";
+      }
+
+      function toggleMute() {
+        isMuted = !isMuted;
+        const muteBtn = document.getElementById("muteBtn");
+        muteBtn.classList.toggle("active");
+        muteBtn.textContent = isMuted ? "Unmute" : "Mute";
+        statusText.textContent = isMuted ? "Sound muted" : "Sound enabled";
+      }
+
+      // Event listeners
+      document
+        .getElementById("lizardButton")
+        .addEventListener("click", async () => {
+          if (!isAudioInitialized) await initAudio();
+          addLizardToChat();
+        });
+
+      document
+        .getElementById("autoSpamBtn")
+        .addEventListener("click", async () => {
+          if (!isAudioInitialized) await initAudio();
+          if (isAutoSpamming) {
+            stopAutoSpam();
+          } else {
+            startAutoSpam();
+          }
+        });
+
+      document.getElementById("clearBtn").addEventListener("click", clearChat);
+      document.getElementById("muteBtn").addEventListener("click", toggleMute);
+
+      speedSlider.addEventListener("input", () => {
+        const speed = speedSlider.value;
+        speedValue.textContent = speed + "ms";
+
+        // Update auto spam speed if running
+        if (isAutoSpamming) {
+          stopAutoSpam();
+          setTimeout(startAutoSpam, 100);
+        }
+      });
+
+      // Keyboard shortcuts
+      document.addEventListener("keydown", (e) => {
+        if (e.code === "Space") {
+          e.preventDefault();
+          document.getElementById("lizardButton").click();
+        }
+      });
+
+      // Initialize audio on any click
+      document.addEventListener(
+        "click",
+        async () => {
+          if (!isAudioInitialized) await initAudio();
+        },
+        { once: true }
+      );
+
+      // Update speed display
+      speedValue.textContent = speedSlider.value + "ms";
+    </script>
+  </body>
+</html>
