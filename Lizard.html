@@ -9,7 +9,7 @@
       body {
         font-family: "Arial", sans-serif;
         background: linear-gradient(135deg, #0a0a0a, #1a1a1a);
-        color: #ddd;
+        color: #fff;
         min-height: 100vh;
         margin: 0;
         padding: 20px;
@@ -303,13 +303,27 @@
       </div>
 
       <div class="pixar-credit">
-        Original from Disney Pixar's "Elio" (2025) - Hoppers Preview
+        Original from Disney Pixar's "Elio" (2025) - Hoppers Preview<br />
+        <strong>🎵 TO USE REAL MP3:</strong><br />
+        1. Download MP3 from
+        <a
+          href="https://www.myinstants.com/en/instant/lizard-button-12218/"
+          target="_blank"
+          style="color: #4a8f4a"
+          >MyInstants</a
+        ><br />
+        2. Save this HTML file to your computer<br />
+        3. Uncomment the MP3 code in the JavaScript section
       </div>
     </div>
 
     <script>
-      let synth,
-        isAudioInitialized = false;
+      // 🦎 MP3 AUDIO SETUP (for use outside Claude)
+      // Download the lizard sound MP3 from: https://www.myinstants.com/en/instant/lizard-button-12218/
+      // Or any of the other meme sound sites, then replace 'lizard-sound.mp3' with your file path
+
+      let lizardAudio;
+      let isAudioInitialized = false;
       let lizardCount = 0;
       let isAutoSpamming = false;
       let autoSpamInterval;
@@ -323,40 +337,48 @@
       const speedValue = document.getElementById("speedValue");
 
       // Initialize audio
-      async function initAudio() {
+      function initAudio() {
         if (isAudioInitialized) return;
 
-        await Tone.start();
+        // 🎵 UNCOMMENT THIS WHEN YOU HAVE THE MP3 FILE:
+        lizardAudio = new Audio("lizard.mp3"); // Put your MP3 file path here
+        lizardAudio.volume = 0.7; // Adjust volume as needed
 
-        // Create a robotic voice-like synthesizer
-        synth = new Tone.Synth({
-          oscillator: {
-            type: "square",
-          },
-          envelope: {
-            attack: 0.01,
-            decay: 0.1,
-            sustain: 0.3,
-            release: 0.1,
-          },
-        });
+        // 🔧 FALLBACK: Synthesized sound (works in Claude artifacts)
+        // Remove this section when using real MP3
+        initSynthAudio();
 
-        // Add filter for robotic effect
-        const filter = new Tone.Filter({
-          frequency: 1200,
-          type: "lowpass",
-        });
-
-        synth.chain(filter, Tone.Destination);
         isAudioInitialized = true;
+        statusText.textContent =
+          "Audio ready! (Using synthesized sound - see comments for MP3 setup)";
+      }
+
+      // Fallback synthesized audio (remove when using MP3)
+      let synth;
+      async function initSynthAudio() {
+        await Tone.start();
+        synth = new Tone.Synth({
+          oscillator: { type: "square" },
+          envelope: { attack: 0.01, decay: 0.1, sustain: 0.3, release: 0.1 },
+        });
+        const filter = new Tone.Filter({ frequency: 1200, type: "lowpass" });
+        synth.chain(filter, Tone.Destination);
       }
 
       function playLizardSound() {
-        if (!isMuted && synth) {
-          // Create robotic "lizard" sound pattern
-          const notes = ["C4", "G3", "C4"]; // Simple pattern for "li-zard"
-          const durations = [0.1, 0.1, 0.15];
+        if (isMuted) return;
 
+        // 🎵 REAL MP3 PLAYBACK (uncomment when you have the MP3):
+
+        if (lizardAudio) {
+          lizardAudio.currentTime = 0; // Reset to start for rapid clicking
+          lizardAudio.play().catch((e) => console.log("Audio play failed:", e));
+        }
+
+        // 🔧 FALLBACK: Synthesized sound (remove when using MP3)
+        if (synth) {
+          const notes = ["C4", "G3", "C4"];
+          const durations = [0.1, 0.1, 0.15];
           let time = Tone.now();
           notes.forEach((note, index) => {
             synth.triggerAttackRelease(
@@ -365,13 +387,13 @@
               time + index * 0.08
             );
           });
-
-          // Show audio wave animation
-          audioWave.style.display = "flex";
-          setTimeout(() => {
-            audioWave.style.display = "none";
-          }, 300);
         }
+
+        // Show audio wave animation
+        audioWave.style.display = "flex";
+        setTimeout(() => {
+          audioWave.style.display = "none";
+        }, 300);
       }
 
       function addLizardToChat() {
@@ -442,23 +464,19 @@
       }
 
       // Event listeners
-      document
-        .getElementById("lizardButton")
-        .addEventListener("click", async () => {
-          if (!isAudioInitialized) await initAudio();
-          addLizardToChat();
-        });
+      document.getElementById("lizardButton").addEventListener("click", () => {
+        if (!isAudioInitialized) initAudio();
+        addLizardToChat();
+      });
 
-      document
-        .getElementById("autoSpamBtn")
-        .addEventListener("click", async () => {
-          if (!isAudioInitialized) await initAudio();
-          if (isAutoSpamming) {
-            stopAutoSpam();
-          } else {
-            startAutoSpam();
-          }
-        });
+      document.getElementById("autoSpamBtn").addEventListener("click", () => {
+        if (!isAudioInitialized) initAudio();
+        if (isAutoSpamming) {
+          stopAutoSpam();
+        } else {
+          startAutoSpam();
+        }
+      });
 
       document.getElementById("clearBtn").addEventListener("click", clearChat);
       document.getElementById("muteBtn").addEventListener("click", toggleMute);
@@ -485,8 +503,8 @@
       // Initialize audio on any click
       document.addEventListener(
         "click",
-        async () => {
-          if (!isAudioInitialized) await initAudio();
+        () => {
+          if (!isAudioInitialized) initAudio();
         },
         { once: true }
       );
